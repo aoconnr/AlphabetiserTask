@@ -1,6 +1,6 @@
 # AlphabetiserTask
-Interview Task
+Alphabetiser Task using Blazor for simple setup
 
 
 ### To Run:
-- Launch in Visual Studio Debug 
+- Launch in Visual Studio
