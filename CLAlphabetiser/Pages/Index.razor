@@ -1,0 +1,67 @@
+﻿@page "/"
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Alphabetiser</PageTitle>
+<div class="mb-3">
+    <button class="btn btn-success" @onclick="AddValue">Add Value</button>
+    <button class="btn btn-primary" @onclick="Sort">Sort</button>
+    <button class="btn btn-outline-primary" @onclick="GenerateTestData">Add Test Values</button>
+
+    @foreach (var inputValue in Values)
+    {
+        <div class="input-group w-50 p-3">
+            <input placeholder="No Value" class="form-control" @bind="inputValue.Value" type="text" />
+            @if (Values.Count > 2)
+            {
+                @*<div class="input-group-append">*@
+                <div class="input-group-append">
+                    <button class="btn btn-outline-danger" @onclick="() => Remove(inputValue)"><span class="oi oi-trash"></span></button>
+                </div>
+            }
+        </div>
+    }
+</div>
+@code
+{
+    private static readonly string[] _exampleValues = { "element", "ant", "dog", "cat", "door", "random", "example", "text", "objects", "zebra" };
+    public List<InputValue> Values { get; set; } = new() { new InputValue(), new InputValue() };
+
+    public void AddValue()
+    {
+        //Add to top of list to avoid scrolling
+        Values.Insert(0, new InputValue());
+    }
+
+
+    public void Sort()
+    {
+        Values = Values.OrderBy(v => v.Value).ToList();
+    }
+
+    //Remove selected value, output basic error if attempted to delete when only 2 remain
+    public async Task Remove(InputValue inputValue)
+    {
+        if (inputValue is null) throw new ArgumentNullException(nameof(inputValue));
+
+        if (Values.Count < 3) await JsRuntime.InvokeVoidAsync("alert", "At least 2 fields must exist");
+        else Values.Remove(inputValue);
+    }
+
+    public void GenerateTestData()
+    {
+        if (Values == null) Values = new();
+        Values.AddRange(_exampleValues.Select(v => new InputValue(v)));
+    }
+
+    public class InputValue
+    {
+        public Guid Id { get; }
+        public string Value { get; set; } = String.Empty;
+
+        public InputValue()
+            => Id = Guid.NewGuid();
+
+        public InputValue(string value) : base()
+            => Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+}
